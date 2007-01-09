@@ -64,6 +64,8 @@
       <pathelement path="build/repository"/> <!-- repository configs -->
       <pathelement path="${maven2.cp}"/>
     </path>
+
+    <property name="crawler.xconf" value="crawler.xconf"/>
   </target>
 
   <target name="compile" description="Compile Java classes" depends="init">
@@ -128,5 +130,24 @@
     >
     </javadoc>
   </target>
+
+<target name="crawl" description="Crawl and dump hypertext documents. Usage: -Dcrawler.xconf=/foo/bar/crawler.xconf (IMPORTANT NOTE: Use an absolute path to specify the crawler.xconf file" depends="init">
+  <echo>INFO: Crawl and dump hypertext documents (${crawler.xconf})</echo>
+
+  <echo>INFO: Show configuration</echo>
+  <java classname="org.apache.lenya.search.crawler.CrawlerConfiguration">
+    <arg value="${crawler.xconf}"/>
+    <classpath refid="class.path"/>
+  </java>
+
+<!--
+  <echo>INFO: START crawling ...</echo>
+  <java classname="org.apache.lenya.search.crawler.IterativeHTMLCrawler">
+    <arg value="${crawler.xconf}"/>
+    <classpath refid="class.path"/>
+  </java>
+  <echo>INFO: Crawling finished</echo>
+-->
+</target>
 
 </project>
