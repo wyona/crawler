@@ -27,38 +27,6 @@
                   version="1.2"/>
       <dependency groupId="commons-collections" artifactId="commons-collections"
                   version="3.2"/>
-
-<!--
-      <dependency groupId="avalon-framework" artifactId="avalon-framework-api"
-                  version="4.1.5"/>
-      <dependency groupId="avalon-framework" artifactId="avalon-framework-impl"
-                  version="4.1.5"/>
-      <dependency groupId="apache-jakarta-commons" artifactId="apache-jakarta-commons-id"
-                  version="0.1-dev-lcr357257"/>
-      <dependency groupId="wyona-org-commons" artifactId="wyona-org-commons"
-                  version="0.0.1-dev-r17376"/>
-      <dependency groupId="svnkit" artifactId="svnkit"
-                  version="1.1.0"/>
--->
-
-      <!-- Runtime libs -->
-      <!-- IMPORT: xerces 2.7.1 is dependent on xml-apis 1.3.02 -->
-<!--
-      <dependency groupId="xerces" artifactId="xercesImpl"
-                  version="2.7.1"/>
-      <dependency groupId="xml-apis" artifactId="xml-apis"
-                  version="1.3.02"/>
-      <dependency groupId="xml-resolver" artifactId="xml-resolver"
-                  version="1.1"/>
-      <dependency groupId="apache-jakarta-commons" artifactId="apache-jakarta-commons-discovery"
-                  version="0.2"/>
-      <dependency groupId="apache-jakarta-commons" artifactId="apache-jakarta-commons-logging"
-                  version="1.0.4"/>
-      <dependency groupId="hsqldb" artifactId="hsqldb"
-                  version="1.8.0.7"/>
-      <dependency groupId="postgresql" artifactId="postgresql"
-                  version="7.4.1-jdbc3"/>
--->
     </artifact:dependencies>
     <property name="maven2.cp" refid="maven2.classpath"/>
 
@@ -109,36 +77,7 @@
     />
   </target>
 
-  <target name="compile-impl" description="Compile Java classes of Implementation" depends="init">
-    <echo>${classes.dir}</echo>
-    <mkdir dir="${classes.dir}"/>
-    <javac srcdir="src/impl" destdir="${classes.dir}"
-           classpathref="classpath.impl"
-           debug="true"
-    />
-  </target>
-
-  <target name="compile-examples" description="Compile Java classes of examples" depends="init,compile">
-    <echo>${classes.dir}</echo>
-    <mkdir dir="${classes.dir}"/>
-    <javac srcdir="src/test" destdir="${classes.dir}"
-           classpathref="classpath.examples"
-           debug="true"
-           source="${source.java.version}"
-           target="${target.java.version}"
-    />
-    <copy file="src/test/java/yarep.properties" todir="${classes.dir}"/>
-  </target>
-
-  <target name="build-examples" description="Build examples" depends="init,compile-examples,compile-impl">
-    <copy todir="${build.dir}/repository">
-      <fileset dir="src/test/repository"/>
-    </copy>
-
-    <mkdir dir="build/lib"/>
-  </target>
-
-  <target name="jar" description="Create jar files for core and impl" depends="init,compile,compile-impl">
+  <target name="jar" description="Create jar files for core and impl" depends="init,compile">
     <mkdir dir="build/lib"/>
 
     <jar
@@ -192,28 +131,6 @@
 
   <target name="clean" description="Clean Build" depends="init">
     <delete dir="${build.dir}"/>
-  </target>
-
-  <target name="run-examples" description="Run Example" depends="init, build-examples">
-    <java classname="org.wyona.yarep.examples.HelloWorld">
-      <classpath refid="classpath.run"/>
-    </java>
-  </target>
-
-  <!-- the test target executes all tests in the test directory, or alternatively
-       it executes a single test which is specified by the test.class.name property -->
-  <target name="test" description="Run Tests" depends="init, build-examples">
-    <mkdir dir="build/log"/>
-    <junit fork="yes" printsummary="yes" haltonfailure="no" showoutput="yes" failureproperty="tests.failed">
-      <formatter type="plain" usefile="false" />
-      <formatter type="xml"/>
-      <classpath refid="classpath.run" />
-      <batchtest todir="build/log" unless="test.class.name">
-        <fileset dir="${classes.dir}" includes="**/*Test.class" excludes="**/Abstract*.class"/>
-      </batchtest>
-      <test todir="build/log" name="${test.class.name}" if="test.class.name"/>
-    </junit>
-    <fail if="tests.failed"  message="One or more junit tests failed. Please check the log (build/log)."/>
   </target>
 
   <target name="javadoc" description="Generate Javadoc" depends="init">
