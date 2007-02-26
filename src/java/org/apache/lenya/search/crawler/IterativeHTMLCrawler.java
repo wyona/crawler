@@ -464,7 +464,7 @@ public class IterativeHTMLCrawler {
             ext = getExtension(file);
         }
 
-        if (ext.equals("html") || ext.equals("htm") || ext.equals("txt") || ext.equals("pdf")) {
+        if (ext != null && (ext.equals("html") || ext.equals("htm") || ext.equals("txt") || ext.equals("pdf"))) {
             try {
                 File parent = new File(file.getParent());
 
