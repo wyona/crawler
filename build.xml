@@ -27,6 +27,11 @@
                   version="1.2"/>
       <dependency groupId="commons-collections" artifactId="commons-collections"
                   version="3.2"/>
+      <dependency groupId="xerces" artifactId="xercesImpl"
+                  version="2.7.1"/>
+      <dependency groupId="xml-apis" artifactId="xml-apis"
+                  version="1.3.02"/>
+                  
     </artifact:dependencies>
     <property name="maven2.cp" refid="maven2.classpath"/>
 
@@ -137,17 +142,17 @@
   <echo>INFO: Show configuration</echo>
   <java classname="org.apache.lenya.search.crawler.CrawlerConfiguration">
     <arg value="${crawler.xconf}"/>
-    <classpath refid="class.path"/>
+    <classpath refid="classpath.run"/>
   </java>
 
-<!--
+
   <echo>INFO: START crawling ...</echo>
   <java classname="org.apache.lenya.search.crawler.IterativeHTMLCrawler">
     <arg value="${crawler.xconf}"/>
-    <classpath refid="class.path"/>
+    <classpath refid="classpath.run"/>
   </java>
   <echo>INFO: Crawling finished</echo>
--->
+
 </target>
 
 </project>
