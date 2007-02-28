@@ -36,6 +36,7 @@ import org.apache.log4j.Logger;
 
 /**
  * Crawl iteratively
+ * @deprecated
  */
 public class IterativeHTMLCrawler {
     static Logger log = Logger.getLogger(IterativeHTMLCrawler.class);
@@ -107,7 +108,7 @@ public class IterativeHTMLCrawler {
         String robots_domain = ce.getRobotsDomain();
         if (robots_file != null && robots_domain != null) {
             log.debug(robots_file + " " + robots_domain);
-            robot.addLocalEntries(robots_domain, new File(robots_file));
+            //robot.addLocalEntries(robots_domain, new File(robots_file));
         }
     }
 

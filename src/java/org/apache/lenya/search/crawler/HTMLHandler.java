@@ -37,6 +37,7 @@ import javax.swing.text.html.parser.ParserDelegator;
 
 /**
  * DOCUMENT ME!
+ * @deprecated
  */
 public final class HTMLHandler extends ParserCallback implements ContentHandler {
     private static final char space = ' ';

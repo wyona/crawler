@@ -31,6 +31,7 @@ import org.w3c.dom.Element;
 
 /**
  * Web-Crawler (it might make sense to replace this by Nutch)
+ * @deprecated
  */
 public class CrawlerConfiguration {
     static Logger log = Logger.getLogger(CrawlerConfiguration.class);

@@ -26,6 +26,7 @@ import java.util.List;
 
 /**
  * DOCUMENT ME!
+ * @deprecated
  */
 public interface ContentHandler {
     /**
