@@ -65,6 +65,14 @@ public class DumpingCrawler extends Crawler {
         } catch (MalformedURLException e) {
             this.setRoot(null);
         }
+        if (!crawlStartURL.startsWith(crawlScopeURL)) {
+            throw new IllegalArgumentException("crawlScopeURL [" + crawlScopeURL + 
+                    "] must be a prefix of crawlStartURL [" + crawlStartURL + "]");
+        }
+        if (dumpDir.exists() && !dumpDir.isDirectory()) {
+            throw new IllegalArgumentException("dumpDir [" + dumpDir.getAbsolutePath() + 
+                    "] is not a directory.");
+        }
         this.crawlScopeURL = crawlScopeURL;
         this.dumpDir = dumpDir;
         this.setSynchronous(true);
