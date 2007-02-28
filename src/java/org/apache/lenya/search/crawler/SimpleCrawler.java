@@ -90,6 +90,7 @@ public class SimpleCrawler extends Crawler {
                 LinkTransformer linkTransformer = new LinkTransformer(new FileOutputStream(file));
                 linkTransformer.setBase(page.getBase());
                 linkTransformer.writePage(page);
+                linkTransformer.flush();
             } catch (IOException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
