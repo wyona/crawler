@@ -136,6 +136,7 @@
     </javadoc>
   </target>
 
+<!-- 
 <target name="crawl" description="Crawl and dump hypertext documents. Usage: -Dcrawler.xconf=/foo/bar/crawler.xconf (IMPORTANT NOTE: Use an absolute path to specify the crawler.xconf file" depends="init">
   <echo>INFO: Crawl and dump hypertext documents (${crawler.xconf})</echo>
 
@@ -154,5 +155,20 @@
   <echo>INFO: Crawling finished</echo>
 
 </target>
+ -->
+
+<target name="crawl" description="test the simple crawler" depends="init">
+  <echo>INFO: Crawl and dump hypertext documents</echo>
+
+  <echo>INFO: START crawling ...</echo>
+  <java classname="org.apache.lenya.search.crawler.SimpleCrawler">
+    <arg value="${crawler.root.url}"/>
+    <arg value="${crawler.dump.dir}"/>
+    <classpath refid="classpath.run"/>
+  </java>
+  <echo>INFO: Crawling finished</echo>
+
+</target>
+
 
 </project>
