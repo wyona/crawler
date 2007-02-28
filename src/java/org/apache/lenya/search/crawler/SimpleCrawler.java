@@ -85,8 +85,9 @@ public class SimpleCrawler extends Crawler {
     }
 
     public static void main(String[] args) {
-        SimpleCrawler crawler = new SimpleCrawler(args[0], new File(
-                "/tmp/dump"));
+        String crawlURL = args[0];
+        String dumpDir = args[1];
+        SimpleCrawler crawler = new SimpleCrawler(crawlURL, new File(dumpDir));
         crawler.run();
     }
 
