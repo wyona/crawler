@@ -39,6 +39,7 @@ import java.net.HttpURLConnection;
 //#endif JDK1.1
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import rcm.util.Str;
 
 /**
@@ -50,6 +51,8 @@ public class Page extends Region {
 
     // typical page length, to optimize downloads
     static final int TYPICAL_LENGTH = 20240;
+    
+    static final String DEFAULT_ENCODING = "iso-8859-1";
 
     // Permanent content
     Link origin;
@@ -258,17 +261,60 @@ public class Page extends Region {
         }
  
         contentBytes = buf;
-        content = new String (buf);
+        
         start = 0;
-        end = total;
         contentLock = 1;
+        
+        String mimeType = getMimeType(contentType);
+        
+        if (MimeTypeUtil.isTextual(mimeType)) {
+            contentEncoding = getCharset(contentType);
+            if (contentEncoding == null) {
+                contentEncoding = DEFAULT_ENCODING;
+            }
+            try {
+                content = new String (buf, contentEncoding);
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+                throw new IOException(e.getMessage());
+            }
+            end = content.length();
+        } else {
+            end = total;
+        }
 
         //  parse the response
-        if (contentType == null
-            || contentType.startsWith ("text/html") 
-            || contentType.startsWith ("content/unknown"))
+        if (MimeTypeUtil.isHTML(mimeType)) {
             parse (parser);
+        }
     }
+    
+    /**
+     * Extracts the mime-type of the content-type.
+     * @param contentType e.g. text/html; charset=utf-8
+     * @return e.g. text/html
+     */
+    private String getMimeType(String contentType) {
+        if (contentType.indexOf(";") > -1) {
+            return contentType.substring(0, contentType.indexOf(";"));
+        } else {
+            return contentType;
+        }
+    }
+    
+    /**
+     * Extracts the charset of the content-type.
+     * @param contentType e.g. text/html; charset=utf-8
+     * @return e.g. utf-8 or null if no charset is specified
+     */
+    private String getCharset(String contentType) {
+        if (contentType.indexOf("charset=") > -1) {
+            return contentType.split("charset=")[1];
+        } else {
+            return null;
+        }
+    }
+    
 
     void downloadSafely () {
       try {
