@@ -32,9 +32,9 @@ import websphinx.LinkTransformer;
 import websphinx.Page;
 
 /**
- * 
+ * Crawler which creates a dump of a website.
  */
-public class SimpleCrawler extends Crawler {
+public class DumpingCrawler extends Crawler {
 
     private String crawlScopeURL;
 
@@ -59,7 +59,7 @@ public class SimpleCrawler extends Crawler {
      *          The directory in the filesystem where the dumped files will be stored.
      *          Does not have to exist yet, it will be created by the crawler.
      */
-    public SimpleCrawler(String crawlStartURL, String crawlScopeURL, File dumpDir) {
+    public DumpingCrawler(String crawlStartURL, String crawlScopeURL, File dumpDir) {
         try {
             this.setRoot(new Link(crawlStartURL));
         } catch (MalformedURLException e) {
@@ -101,7 +101,7 @@ public class SimpleCrawler extends Crawler {
         String crawlScopeURL = args[1];
         String dumpDir = args[2];
         
-        SimpleCrawler crawler = new SimpleCrawler(crawlStartURL, crawlScopeURL, new File(dumpDir));
+        DumpingCrawler crawler = new DumpingCrawler(crawlStartURL, crawlScopeURL, new File(dumpDir));
         
         EventLog eventLog = new EventLog(System.out);
         crawler.addCrawlListener(eventLog);

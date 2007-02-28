@@ -161,7 +161,7 @@
   <echo>INFO: Crawl and dump hypertext documents</echo>
 
   <echo>INFO: START crawling ...</echo>
-  <java classname="org.apache.lenya.search.crawler.SimpleCrawler">
+  <java classname="org.apache.lenya.search.crawler.DumpingCrawler">
     <arg value="${crawler.start.url}"/>
     <arg value="${crawler.scope.url}"/>
     <arg value="${crawler.dump.dir}"/>
