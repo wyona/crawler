@@ -88,7 +88,7 @@
     <mkdir dir="build/lib"/>
 
     <jar
-      destfile="build/lib/apache-lenya-crawler-${crawler.version}-r${subversion.revision}.jar"
+      destfile="build/lib/crawler-${crawler.version}-r${subversion.revision}.jar"
       basedir="build/classes"
     >
     <!--
@@ -100,27 +100,17 @@
   </target>
 
   <target name="install-jar" description="Place jar into local maven repository" depends="init,jar">
-    <copy file="src/core/pom.xml" tofile="build/lib/pom-core.xml"/>
-    <replace file="build/lib/pom-core.xml" value="${yarep.version}-r${subversion.revision}">
+    <copy file="src/pom.xml" tofile="build/lib/pom.xml"/>
+    <replace file="build/lib/pom.xml" value="${crawler.version}-r${subversion.revision}">
       <replacetoken>@VERSION@</replacetoken>
     </replace>
 
-    <artifact:pom id="maven.project.core" file="build/lib/pom-core.xml"/>
-  
-    <artifact:install file="build/lib/yarep-core-${yarep.version}-r${subversion.revision}.jar">
-      <pom refid="maven.project.core"/>
+    <artifact:pom id="maven.project" file="build/lib/pom.xml"/>
+
+    <artifact:install file="build/lib/crawler-${crawler.version}-r${subversion.revision}.jar">
+      <pom refid="maven.project"/>
     </artifact:install>
 
-    <copy file="src/impl/pom.xml" tofile="build/lib/pom-impl.xml"/>
-    <replace file="build/lib/pom-impl.xml" value="${yarep.version}-r${subversion.revision}">
-      <replacetoken>@VERSION@</replacetoken>
-    </replace>
-
-    <artifact:pom id="maven.project.impl" file="build/lib/pom-impl.xml"/>
-  
-    <artifact:install file="build/lib/yarep-impl-${yarep.version}-r${subversion.revision}.jar">
-      <pom refid="maven.project.impl"/>
-    </artifact:install>
   </target>
 
   <target name="clean" description="Clean Build" depends="init">
@@ -157,7 +147,7 @@
 </target>
  -->
 
-<target name="crawl" description="test the simple crawler" depends="init">
+<target name="crawl" description="Crawl and dump hypertext documents" depends="init">
   <echo>INFO: Crawl and dump hypertext documents</echo>
 
   <echo>INFO: START crawling ...</echo>
