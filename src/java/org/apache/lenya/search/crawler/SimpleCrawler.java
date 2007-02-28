@@ -44,7 +44,7 @@ public class SimpleCrawler extends Crawler {
     /**
      * @see websphinx.StandardClassifier
      */
-    private static final String[] LINK_TYPES = {"hyperlink", "image", "code", "link"};
+    private static final String[] LINK_TYPES = {"hyperlink", "image", "code", "header-link"};
 
     public SimpleCrawler(String crawlRoot, File dumpRoot) {
         try {
