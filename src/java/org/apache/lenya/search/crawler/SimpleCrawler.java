@@ -24,11 +24,9 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.net.URL;
 
 import websphinx.Crawler;
 import websphinx.EventLog;
-import websphinx.Form;
 import websphinx.Link;
 import websphinx.LinkTransformer;
 import websphinx.Page;
@@ -72,11 +70,11 @@ public class SimpleCrawler extends Crawler {
         this.setSynchronous(true);
         this.setDomain(Crawler.SERVER);
         this.setLinkType(LINK_TYPES);
-        EventLog eventLog = new EventLog(System.out);
-        this.addCrawlListener(eventLog);
-        this.addLinkListener(eventLog);
     }
 
+    /**
+     * @see websphinx.Crawler#visit(websphinx.Page)
+     */
     public void visit(Page page) {
         String pageURL = page.getURL().toString();
         if (pageURL.startsWith(this.crawlScopeURL)) {
@@ -92,8 +90,8 @@ public class SimpleCrawler extends Crawler {
                 linkTransformer.writePage(page);
                 linkTransformer.flush();
             } catch (IOException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
+                throw new RuntimeException("Could not save page: url=" + page.getURL() + ", file=" 
+                        + file + ": " + e, e);
             }
         }
     }
@@ -102,8 +100,13 @@ public class SimpleCrawler extends Crawler {
         String crawlStartURL = args[0];
         String crawlScopeURL = args[1];
         String dumpDir = args[2];
+        
         SimpleCrawler crawler = new SimpleCrawler(crawlStartURL, crawlScopeURL, new File(dumpDir));
+        
+        EventLog eventLog = new EventLog(System.out);
+        crawler.addCrawlListener(eventLog);
+        crawler.addLinkListener(eventLog);
+        
         crawler.run();
     }
-
 }
