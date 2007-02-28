@@ -89,8 +89,8 @@ public class Concatenator extends RewritableLinkTransformer {
      * @param filename Filename to write concatenated pages to
      * @exception IOException if file cannot be opened
      */
-    public Concatenator (String filename) throws IOException {
-        super (makeDirs(filename));
+    public Concatenator (String filename, String encoding) throws IOException {
+        super (makeDirs(filename), encoding);
     }
     
     private static String makeDirs (String filename) throws IOException {
@@ -312,7 +312,7 @@ public class Concatenator extends RewritableLinkTransformer {
      *
      */
     public static void main (String[] args) throws Exception {
-        HTMLTransformer out = new Concatenator (args[args.length-1]);
+        HTMLTransformer out = new Concatenator (args[args.length-1], "utf-8");
         for (int i=0; i<args.length-1; ++i) {
             Link link = new Link (args[i]);
             Page page = new Page (link);

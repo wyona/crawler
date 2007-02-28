@@ -65,9 +65,10 @@ public class LinkTransformer extends HTMLTransformer {
     /**
      * Make a LinkTransformer writing to a file.
      * @param filename Filename to write to
+     * @param encoding encoding of strings, e.g. utf-8
      */
-    public LinkTransformer (String filename) throws IOException {
-        super (filename);
+    public LinkTransformer (String filename, String encoding) throws IOException {
+        super (filename, encoding);
     }
 
     /**
@@ -75,17 +76,19 @@ public class LinkTransformer extends HTMLTransformer {
      * file.
      * @param filename Name of file to receive HTML output
      * @param seekable True if file should be opened for random access
+     * @param encoding encoding of strings, e.g. utf-8
      */
-    public LinkTransformer (String filename, boolean seekable) throws IOException {
-        super (filename, seekable);
+    public LinkTransformer (String filename, boolean seekable, String encoding) throws IOException {
+        super (filename, seekable, encoding);
     }
     
     /**
      * Make a LinkTransformer writing to a stream.
      * @param out stream to write to
+     * @param encoding encoding of strings, e.g. utf-8
      */
-    public LinkTransformer (OutputStream out) {
-        super (out);
+    public LinkTransformer (OutputStream out, String encoding) {
+        super (out, encoding);
     }
 
     /**

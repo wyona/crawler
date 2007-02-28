@@ -36,6 +36,7 @@ import java.io.File;
 import java.io.OutputStream;
 import java.io.RandomAccessFile;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 //#ifdef JDK1.1 
 import java.io.Writer;
 import java.io.OutputStreamWriter;
@@ -71,14 +72,18 @@ public class HTMLTransformer {
                                     //    written)
     private int transformEnd;       // end of region being transformed
     
+    private String encoding;        // encoding of strings, e.g. utf-8
+
     /**
      * Make an HTMLTransformer that writes pages to a
      * stream.
      * @param out Stream to receive HTML output
+     * @param encoding encoding of strings, e.g. utf-8
      */
-    public HTMLTransformer (OutputStream out) {
+    public HTMLTransformer (OutputStream out, String encoding) {
         head = tail = this;
         next = null;
+        this.encoding = encoding;
         setOutput (out);
     }
 
@@ -86,11 +91,13 @@ public class HTMLTransformer {
      * Make an HTMLTransformer that writes pages to a
      * file.
      * @param filename Name of file to receive HTML output
+     * @param encoding encoding of strings, e.g. utf-8
      * @exception IOException if file cannot be opened
      */
-    public HTMLTransformer (String filename) throws IOException {
+    public HTMLTransformer (String filename, String encoding) throws IOException {
         head = tail = this;
         next = null;        
+        this.encoding = encoding;
         openFile (filename, false);
     }
 
@@ -100,10 +107,12 @@ public class HTMLTransformer {
      * file.
      * @param filename Name of file to receive HTML output
      * @param seekable True if file should be opened for random access
+     * @param encoding encoding of strings, e.g. utf-8
      */
-    public HTMLTransformer (String filename, boolean seekable) throws IOException {
+    public HTMLTransformer (String filename, boolean seekable, String encoding) throws IOException {
         head = tail = this;
         next = null;        
+        this.encoding = encoding;
         openFile (filename, seekable);
     }
 
@@ -142,7 +151,15 @@ public class HTMLTransformer {
     public void setOutput (OutputStream out) {
         if (next == null) {
             stream = out;
-            writer = new OutputStreamWriter (out);
+            try {
+                if (encoding == null) {
+                    encoding = "utf-8";
+                }
+                writer = new OutputStreamWriter (out, encoding);
+            } catch (UnsupportedEncodingException e) {
+                throw new RuntimeException("invalid encoding: " + encoding + ": " 
+                        + e.getMessage(), e);
+            }
         } else
             next.setOutput (out);
     }
@@ -452,6 +469,7 @@ public class HTMLTransformer {
             readwrite.write (buf, offset, len);
     }
 
+    
     /*
      * Testing
      *

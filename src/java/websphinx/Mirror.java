@@ -129,7 +129,7 @@ public class Mirror extends LinkTransformer {
         if (parent != null)
             Access.getAccess ().makeDir (parent);
 
-        MirrorTransformer out = new MirrorTransformer (this, localFile);
+        MirrorTransformer out = new MirrorTransformer (this, localFile, page.getContentEncoding());
         out.setBase (localURL);
         out.setEmitBaseElement (getEmitBaseElement ());
         out.writePage (page);
@@ -299,8 +299,8 @@ public class Mirror extends LinkTransformer {
 class MirrorTransformer extends RewritableLinkTransformer {
     Mirror mirror; // on the wall?
     
-    public MirrorTransformer (Mirror mirror, File file) throws IOException {
-        super (file.toString());
+    public MirrorTransformer (Mirror mirror, File file, String encoding) throws IOException {
+        super (file.toString(), encoding);
         this.mirror = mirror;
     }
     

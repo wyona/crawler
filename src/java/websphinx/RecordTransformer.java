@@ -51,8 +51,8 @@ public class RecordTransformer extends RewritableLinkTransformer {
 
     int nRecords = 0;
 
-    public RecordTransformer (String filename) throws IOException {
-        super (filename);
+    public RecordTransformer (String filename, String encoding) throws IOException {
+        super (filename, encoding);
     }
 
     public synchronized void setProlog (String prolog) {

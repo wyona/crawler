@@ -53,9 +53,10 @@ public class RewritableLinkTransformer extends LinkTransformer {
     /**
      * Make a RewritableLinkTransformer.
      * @param filename Filename to write to
+     * @param encoding encoding of strings, e.g. utf-8
      */
-    public RewritableLinkTransformer (String filename) throws IOException {
-        super (filename, true);
+    public RewritableLinkTransformer (String filename, String encoding) throws IOException {
+        super (filename, true, encoding);
         file = new File (filename);
     }
 

@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 
 import websphinx.Crawler;
+import websphinx.DownloadParameters;
 import websphinx.EventLog;
 import websphinx.Link;
 import websphinx.LinkTransformer;
@@ -93,7 +94,8 @@ public class DumpingCrawler extends Crawler {
                     file.getParentFile().mkdirs();
                     file.createNewFile();
                 }
-                LinkTransformer linkTransformer = new LinkTransformer(new FileOutputStream(file));
+                LinkTransformer linkTransformer = new LinkTransformer(new FileOutputStream(file), 
+                        page.getContentEncoding());
                 linkTransformer.setBase(page.getBase());
                 linkTransformer.writePage(page);
                 linkTransformer.flush();
@@ -104,6 +106,14 @@ public class DumpingCrawler extends Crawler {
         }
     }
 
+    public boolean shouldVisit(Link link) {
+        if (link.getURL().toString().startsWith(this.crawlScopeURL)) {
+            return super.shouldVisit(link);
+        } else {
+            return false;
+        }
+    }
+    
     public static void main(String[] args) {
         String crawlStartURL = args[0];
         String crawlScopeURL = args[1];
@@ -114,7 +124,7 @@ public class DumpingCrawler extends Crawler {
         EventLog eventLog = new EventLog(System.out);
         crawler.addCrawlListener(eventLog);
         crawler.addLinkListener(eventLog);
-        
+
         crawler.run();
     }
 }
