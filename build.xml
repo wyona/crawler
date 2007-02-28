@@ -162,7 +162,8 @@
 
   <echo>INFO: START crawling ...</echo>
   <java classname="org.apache.lenya.search.crawler.SimpleCrawler">
-    <arg value="${crawler.root.url}"/>
+    <arg value="${crawler.start.url}"/>
+    <arg value="${crawler.scope.url}"/>
     <arg value="${crawler.dump.dir}"/>
     <classpath refid="classpath.run"/>
   </java>

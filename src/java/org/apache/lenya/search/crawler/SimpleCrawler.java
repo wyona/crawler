@@ -27,6 +27,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 
 import websphinx.Crawler;
+import websphinx.EventLog;
 import websphinx.Form;
 import websphinx.Link;
 import websphinx.LinkTransformer;
@@ -37,37 +38,50 @@ import websphinx.Page;
  */
 public class SimpleCrawler extends Crawler {
 
-    private String crawlRoot;
+    private String crawlScopeURL;
 
-    private File dumpRoot;
+    private File dumpDir;
     
     /**
+     * Specify types of links which should be followed.
      * @see websphinx.StandardClassifier
      */
     private static final String[] LINK_TYPES = {"hyperlink", "image", "code", "header-link"};
 
-    public SimpleCrawler(String crawlRoot, File dumpRoot) {
+    /**
+     * Creates a new SimpleCrawler.
+     * @param crawlStartURL 
+     *          The URL where the crawl should start. Has to include a filename
+     *          and extension, e.g. http://wyona.org/index.html
+     * @param crawlScopeURL
+     *          Limits the scope of the crawl, only links which match the scope url  
+     *          will be followed.
+     *          In most cases, the crawlScopeURL is the parent of the crawlStartURL.
+     * @param dumpDir  
+     *          The directory in the filesystem where the dumped files will be stored.
+     *          Does not have to exist yet, it will be created by the crawler.
+     */
+    public SimpleCrawler(String crawlStartURL, String crawlScopeURL, File dumpDir) {
         try {
-            this.setRoot(new Link(crawlRoot));
-            this.crawlRoot = crawlRoot.substring(0, crawlRoot.lastIndexOf("/")+1);
+            this.setRoot(new Link(crawlStartURL));
         } catch (MalformedURLException e) {
             this.setRoot(null);
         }
-        this.dumpRoot = dumpRoot;
+        this.crawlScopeURL = crawlScopeURL;
+        this.dumpDir = dumpDir;
         this.setSynchronous(true);
         this.setDomain(Crawler.SERVER);
         this.setLinkType(LINK_TYPES);
+        EventLog eventLog = new EventLog(System.out);
+        this.addCrawlListener(eventLog);
+        this.addLinkListener(eventLog);
     }
 
     public void visit(Page page) {
-        System.out.println("Visiting [" + page.getURL() + "]");
         String pageURL = page.getURL().toString();
-        String baseURL = this.crawlRoot;
-        System.out.println("pageURL: " + pageURL);
-        System.out.println("baseURL: " + baseURL);
-        if (pageURL.startsWith(baseURL)) {
-            File file = new File(this.dumpRoot, pageURL.substring(baseURL.length()));
-            System.out.println("writing file: " + file.getAbsolutePath());
+        if (pageURL.startsWith(this.crawlScopeURL)) {
+            File file = new File(this.dumpDir, pageURL.substring(this.crawlScopeURL.length()));
+            //System.out.println("writing file: " + file.getAbsolutePath());
             try {
                 if (!file.exists()) {
                     file.getParentFile().mkdirs();
@@ -81,13 +95,13 @@ public class SimpleCrawler extends Crawler {
                 e.printStackTrace();
             }
         }
-        System.out.println("    Done.");
     }
 
     public static void main(String[] args) {
-        String crawlURL = args[0];
-        String dumpDir = args[1];
-        SimpleCrawler crawler = new SimpleCrawler(crawlURL, new File(dumpDir));
+        String crawlStartURL = args[0];
+        String crawlScopeURL = args[1];
+        String dumpDir = args[2];
+        SimpleCrawler crawler = new SimpleCrawler(crawlStartURL, crawlScopeURL, new File(dumpDir));
         crawler.run();
     }
 
