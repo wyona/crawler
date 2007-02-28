@@ -54,6 +54,7 @@ import java.net.URL;
  * <LI><B>sibling</B>: a local link that points to a page in the same directory (e.g. "sibling.html")
  * <LI><B>descendent</B>: a local link that points downwards in the directory structure (e.g., "deep/deeper/deepest.html")
  * <LI><B>ancestor</B>: a link that points upwards in the directory structure (e.g., "../..")
+ * <LI><B>header-link</B>: a link in the header (LINK tag).
  * </UL>
  */
 public class StandardClassifier implements Classifier  {
@@ -124,6 +125,8 @@ public class StandardClassifier implements Classifier  {
                     link.setLabel ("code");
                 else if (tagName == Tag.FORM)
                     link.setLabel ("form");
+                if (tagName == Tag.LINK)
+                    link.setLabel ("header-link");
                 else if (tagName == Tag.A || tagName == Tag.AREA || tagName == Tag.FRAME) {
                     String protocol = link.getProtocol ();
                     
