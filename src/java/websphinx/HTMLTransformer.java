@@ -257,7 +257,7 @@ public class HTMLTransformer {
             if (page.isHTML ())
                 write (page);
             else {
-                System.err.println ("binary write of " + page.getURL ());
+                //System.err.println ("binary write of " + page.getURL ());
                 writeStream (page.getContentBytes (),
                              0, page.getLength ());
             }
