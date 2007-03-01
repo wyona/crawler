@@ -82,7 +82,7 @@ public class DumpingCrawler extends Crawler {
         this.setDomain(Crawler.SERVER);
         this.setLinkType(LINK_TYPES);
         try {
-            this.mirror = new Mirror(this.dumpDir);
+            this.mirror = new Mirror(this.dumpDir, this.crawlScopeURL);
         } catch (IOException e) {
             throw new RuntimeException("Could not create mirror with directory: " + this.dumpDir 
                     + ": " + e, e);

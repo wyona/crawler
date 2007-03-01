@@ -35,6 +35,9 @@ package websphinx;
 import java.io.*;
 import java.net.URL;
 import java.net.MalformedURLException;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Vector;
 
 /**
@@ -58,13 +61,17 @@ public class Mirror extends LinkTransformer {
     String defaultFilename = "index.html";
         // name given to a directory URL (like http://foo.com/)
         // when it is saved to disk
+    
+    String crawlScopeURL;
+    
+    private HashSet writtenFiles;
 
     /**
      * Make a new Mirror.
      * @param directory Root directory (on local disk
      * relative to which the mirror pages are stored)
      */
-    public Mirror (String directory) throws IOException {
+    public Mirror (String directory, String crawlScopeURL) throws IOException {
         super ((HTMLTransformer)null);
         if (!directory.endsWith ("/"))
             directory += "/";
@@ -73,6 +80,8 @@ public class Mirror extends LinkTransformer {
             rootFile = new File (rootFile.getAbsolutePath ());
         URL rootURL = Link.FileToURL (rootFile);
         root = rootURL.toExternalForm ();
+        this.crawlScopeURL = crawlScopeURL;
+        this.writtenFiles = new HashSet();
     }
     
     /**
@@ -125,6 +134,12 @@ public class Mirror extends LinkTransformer {
         URL localURL = new URL (local);
         File localFile = Link.URLToFile (localURL);        
 
+        if (writtenFiles.contains(localURL)) {
+            // if some links point to foo/ and some to foo/index.html, and both are 
+            // mapped to the file foo/index.html, it may happen that writePage is called
+            // twice for the same file. In this case we don't do anything.
+            return;
+        }
         File parent = new File (localFile.getParent ());
         if (parent != null)
             Access.getAccess ().makeDir (parent);
@@ -137,6 +152,7 @@ public class Mirror extends LinkTransformer {
         
         needRewrite = !files.isEmpty ();
         files.addElement (out);
+        writtenFiles.add(localURL);
     }
 
     /**
@@ -181,7 +197,7 @@ public class Mirror extends LinkTransformer {
     // Maps a remote directory URL (slash-terminated) to a local 
     // directory URL (slash-terminated)
     private String toLocalDirURL (URL remoteURL) {
-        if (isMapped (remoteURL))
+        /*if (isMapped (remoteURL))
             return lookupDir (null, remoteURL);
 
         String remote = remoteURL.toExternalForm ();
@@ -197,6 +213,28 @@ public class Mirror extends LinkTransformer {
                     + '/';
         }
         else {
+            String remoteParent = remoteParentURL.toExternalForm();
+            String remoteFile = encode (remote.substring (remoteParent.length(),
+                                                          remote.length()-1));
+            String localDir = toLocalDirURL (remoteParentURL);
+            local = localDir + remoteFile + "/";
+        }
+            
+        map (remoteURL, local);
+        return local;*/
+        
+        if (isMapped (remoteURL))
+            return lookupDir (null, remoteURL);
+
+        String remote = remoteURL.toExternalForm ();
+        String local;
+        
+        if (remote.equals(this.crawlScopeURL)) {
+            // we've reached the root of the crawl
+            local = root + '/';
+        }
+        else {
+            URL remoteParentURL = Link.getParentURL (remoteURL);
             String remoteParent = remoteParentURL.toExternalForm();
             String remoteFile = encode (remote.substring (remoteParent.length(),
                                                           remote.length()-1));
@@ -284,7 +322,7 @@ public class Mirror extends LinkTransformer {
      */
     public static void main (String[] args) throws Exception {
         String directory = args[args.length-1];        
-        Mirror out = new Mirror (directory);
+        Mirror out = new Mirror (directory, "");
         out.mapDir (new URL (args[0]), directory);
         for (int i=0; i<args.length-1; ++i) {
             Link link = new Link (args[i]);
