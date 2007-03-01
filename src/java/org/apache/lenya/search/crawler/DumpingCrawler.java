@@ -52,6 +52,7 @@ public class DumpingCrawler extends Crawler {
      *          Limits the scope of the crawl, only links which match the scope url  
      *          will be followed. Must be a prefix of crawlStartURL.
      *          In most cases, the crawlScopeURL is equal to or the parent of the crawlStartURL.
+     *          If the crawlScopeURL does not end with a slash, a slash will be added.
      * @param dumpDir  
      *          The directory in the filesystem where the dumped files will be stored.
      *          Does not have to exist yet, it will be created by the crawler.
@@ -67,6 +68,9 @@ public class DumpingCrawler extends Crawler {
                     "] must be a prefix of crawlStartURL [" + crawlStartURL + "]");
         }
         this.crawlScopeURL = crawlScopeURL;
+        if (!this.crawlScopeURL.endsWith("/")) {
+            this.crawlScopeURL = this.crawlScopeURL + "/";
+        }
         this.dumpDir = dumpDir;
         this.setSynchronous(true);
         this.setDomain(Crawler.SERVER);
