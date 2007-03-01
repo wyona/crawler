@@ -72,7 +72,7 @@ public class HTMLTransformer {
                                     //    written)
     private int transformEnd;       // end of region being transformed
     
-    private String encoding;        // encoding of strings, e.g. utf-8
+    protected String encoding;        // encoding of strings, e.g. utf-8
 
     /**
      * Make an HTMLTransformer that writes pages to a
@@ -453,7 +453,7 @@ public class HTMLTransformer {
             #endif JDK1.0*/
         }
         else
-            readwrite.writeBytes (s);
+            readwrite.write(s.getBytes(this.encoding));
     }
 
     private void writeStream (byte[] buf, int offset, int len) throws IOException {

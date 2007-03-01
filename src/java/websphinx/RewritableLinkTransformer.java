@@ -79,7 +79,7 @@ public class RewritableLinkTransformer extends LinkTransformer {
             emit (s.substring (0, prefix));
             
             String href = lookup (base, url);
-            RewriteRegion node = addURL (url, getFilePointer(), href.length());
+            RewriteRegion node = addURL (url, getFilePointer(), href.getBytes(this.encoding).length);
             emit (href);
             
             emit (s.substring (postfix));
@@ -150,7 +150,7 @@ public class RewritableLinkTransformer extends LinkTransformer {
 
             String href = lookup (base, loc.url);
             loc.newHref = href;
-            loc.newLen = href.length ();
+            loc.newLen = href.getBytes(this.encoding).length;
 
             if (loc.newLen > loc.len) {
                 // new URL is longer than old URL
@@ -185,7 +185,7 @@ public class RewritableLinkTransformer extends LinkTransformer {
             }
 
             // write loc
-            raf.writeBytes (href);
+            raf.write (href.getBytes(this.encoding));
 
             dest += loc.newLen;
             src += loc.len;
@@ -246,7 +246,7 @@ public class RewritableLinkTransformer extends LinkTransformer {
             dest -= loc.newLen;
             src -= loc.len;
             raf.seek (dest);
-            raf.writeBytes (loc.newHref);
+            raf.write (loc.newHref.getBytes(this.encoding));
 
             loc.offset = dest;
             loc.len = loc.newLen;
