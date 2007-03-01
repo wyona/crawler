@@ -1,23 +1,18 @@
 /*
- * Licensed to the Apache Software Foundation (ASF) under one or more
- *  contributor license agreements.  See the NOTICE file distributed with
- *  this work for additional information regarding copyright ownership.
- *  The ASF licenses this file to You under the Apache License, Version 2.0
- *  (the "License"); you may not use this file except in compliance with
- *  the License.  You may obtain a copy of the License at
+ * Copyright 2006 Wyona
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *      http://www.wyona.org/licenses/APACHE-LICENSE-2.0
  *
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
-
-/* $Id: ContentHandler.java 473841 2006-11-12 00:46:38Z gregor $  */
-
 package org.apache.lenya.search.crawler;
 
 import java.io.File;
@@ -52,12 +47,11 @@ public class DumpingCrawler extends Crawler {
     /**
      * Creates a new SimpleCrawler.
      * @param crawlStartURL 
-     *          The URL where the crawl should start. Has to include a filename
-     *          and extension, e.g. http://wyona.org/index.html
+     *          The URL where the crawl should start.
      * @param crawlScopeURL
      *          Limits the scope of the crawl, only links which match the scope url  
-     *          will be followed.
-     *          In most cases, the crawlScopeURL is the parent of the crawlStartURL.
+     *          will be followed. Must be a prefix of crawlStartURL.
+     *          In most cases, the crawlScopeURL is equal to or the parent of the crawlStartURL.
      * @param dumpDir  
      *          The directory in the filesystem where the dumped files will be stored.
      *          Does not have to exist yet, it will be created by the crawler.
@@ -72,10 +66,6 @@ public class DumpingCrawler extends Crawler {
             throw new IllegalArgumentException("crawlScopeURL [" + crawlScopeURL + 
                     "] must be a prefix of crawlStartURL [" + crawlStartURL + "]");
         }
-        /*if (dumpDir.exists() && !dumpDir.isDirectory()) {
-            throw new IllegalArgumentException("dumpDir [" + dumpDir.getAbsolutePath() + 
-                    "] is not a directory.");
-        }*/
         this.crawlScopeURL = crawlScopeURL;
         this.dumpDir = dumpDir;
         this.setSynchronous(true);
