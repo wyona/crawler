@@ -30,6 +30,7 @@ import websphinx.DownloadParameters;
 import websphinx.EventLog;
 import websphinx.Link;
 import websphinx.LinkTransformer;
+import websphinx.Mirror;
 import websphinx.Page;
 
 /**
@@ -39,7 +40,8 @@ public class DumpingCrawler extends Crawler {
 
     private String crawlScopeURL;
 
-    private File dumpDir;
+    private String dumpDir;
+    private Mirror mirror;
     
     /**
      * Specify types of links which should be followed.
@@ -60,7 +62,7 @@ public class DumpingCrawler extends Crawler {
      *          The directory in the filesystem where the dumped files will be stored.
      *          Does not have to exist yet, it will be created by the crawler.
      */
-    public DumpingCrawler(String crawlStartURL, String crawlScopeURL, File dumpDir) {
+    public DumpingCrawler(String crawlStartURL, String crawlScopeURL, String dumpDir) {
         try {
             this.setRoot(new Link(crawlStartURL));
         } catch (MalformedURLException e) {
@@ -70,21 +72,35 @@ public class DumpingCrawler extends Crawler {
             throw new IllegalArgumentException("crawlScopeURL [" + crawlScopeURL + 
                     "] must be a prefix of crawlStartURL [" + crawlStartURL + "]");
         }
-        if (dumpDir.exists() && !dumpDir.isDirectory()) {
+        /*if (dumpDir.exists() && !dumpDir.isDirectory()) {
             throw new IllegalArgumentException("dumpDir [" + dumpDir.getAbsolutePath() + 
                     "] is not a directory.");
-        }
+        }*/
         this.crawlScopeURL = crawlScopeURL;
         this.dumpDir = dumpDir;
         this.setSynchronous(true);
         this.setDomain(Crawler.SERVER);
         this.setLinkType(LINK_TYPES);
+        try {
+            this.mirror = new Mirror(this.dumpDir);
+        } catch (IOException e) {
+            throw new RuntimeException("Could not create mirror with directory: " + this.dumpDir 
+                    + ": " + e, e);
+        }
     }
 
     /**
      * @see websphinx.Crawler#visit(websphinx.Page)
      */
     public void visit(Page page) {
+        try {
+            mirror.writePage(page);
+        } catch (IOException e) {
+            throw new RuntimeException("Could not save page: url=" + page.getURL() + ": " + e, e);
+        }
+    }
+    
+/*    public void visit(Page page) {
         String pageURL = page.getURL().toString();
         if (pageURL.startsWith(this.crawlScopeURL)) {
             File file = new File(this.dumpDir, pageURL.substring(this.crawlScopeURL.length()));
@@ -105,7 +121,7 @@ public class DumpingCrawler extends Crawler {
             }
         }
     }
-
+*/
     public boolean shouldVisit(Link link) {
         if (link.getURL().toString().startsWith(this.crawlScopeURL)) {
             return super.shouldVisit(link);
@@ -114,17 +130,26 @@ public class DumpingCrawler extends Crawler {
         }
     }
     
+    public void close() {
+        try {
+            mirror.close();
+        } catch (IOException e) {
+            throw new RuntimeException("Could not close mirror: " + e, e);
+        }
+    }
+    
     public static void main(String[] args) {
         String crawlStartURL = args[0];
         String crawlScopeURL = args[1];
         String dumpDir = args[2];
         
-        DumpingCrawler crawler = new DumpingCrawler(crawlStartURL, crawlScopeURL, new File(dumpDir));
+        DumpingCrawler crawler = new DumpingCrawler(crawlStartURL, crawlScopeURL, dumpDir);
         
         EventLog eventLog = new EventLog(System.out);
         crawler.addCrawlListener(eventLog);
         crawler.addLinkListener(eventLog);
 
         crawler.run();
+        crawler.close();
     }
 }
