@@ -53,6 +53,12 @@ public class DumpingCrawler extends Crawler {
      *          will be followed. Must be a prefix of crawlStartURL.
      *          In most cases, the crawlScopeURL is equal to or the parent of the crawlStartURL.
      *          If the crawlScopeURL does not end with a slash, a slash will be added.
+     *          The crawlScopeURL also affects the path of the dumped files.
+     *          Example:
+     *          crawlStartURL: http://foo.com/do/re/mi.html
+     *          crawlScopeURL: http://foo.com/do/
+     *          -> the first file would be saved at:
+     *                         /[dumpDir]/re/mi.html
      * @param dumpDir  
      *          The directory in the filesystem where the dumped files will be stored.
      *          Does not have to exist yet, it will be created by the crawler.
