@@ -37,6 +37,8 @@ public class DumpingCrawler extends Crawler {
 
     private String dumpDir;
     private Mirror mirror;
+    private int nofPages = 0;
+    private int maxPages = 100;
     
     /**
      * Specify types of links which should be followed.
@@ -122,8 +124,12 @@ public class DumpingCrawler extends Crawler {
         }
     }
 */
+    /**
+     * @see websphinx.Crawler#shouldVisit(websphinx.Link)
+     */
     public boolean shouldVisit(Link link) {
-        if (link.getURL().toString().startsWith(this.crawlScopeURL)) {
+        if (link.getURL().toString().startsWith(this.crawlScopeURL) && this.nofPages < this.maxPages) {
+            this.nofPages ++;
             return super.shouldVisit(link);
         } else {
             return false;
@@ -148,8 +154,28 @@ public class DumpingCrawler extends Crawler {
         EventLog eventLog = new EventLog(System.out);
         crawler.addCrawlListener(eventLog);
         crawler.addLinkListener(eventLog);
-
+        
         crawler.run();
         crawler.close();
+    }
+
+    /**
+     * Gets the maximum number of pages which will be downloaded.
+     * This number includes also non-html files like images etc.  
+     * Default is 100.
+     * @return
+     */
+    public int getMaxPages() {
+        return maxPages;
+    }
+
+    /**
+     * Sets the maximum number of pages which will be downloaded. 
+     * This number includes also non-html files like images etc.  
+     * Default is 100.
+     * @param maxPages
+     */
+    public void setMaxPages(int maxPages) {
+        this.maxPages = maxPages;
     }
 }
