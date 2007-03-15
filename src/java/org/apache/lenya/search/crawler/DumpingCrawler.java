@@ -16,8 +16,10 @@
 package org.apache.lenya.search.crawler;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.net.MalformedURLException;
 
 import websphinx.Crawler;
@@ -30,6 +32,8 @@ import websphinx.Page;
 
 /**
  * Crawler which creates a dump of a website.
+ * In addition to the actual dump, it creates a .meta file which contains the mimetype 
+ * and the encoding of the downloaded files.
  */
 public class DumpingCrawler extends Crawler {
 
@@ -39,6 +43,7 @@ public class DumpingCrawler extends Crawler {
     private Mirror mirror;
     private int nofPages = 0;
     private int maxPages = 100;
+    private PrintWriter meta;
     
     /**
      * Specify types of links which should be followed.
@@ -64,8 +69,9 @@ public class DumpingCrawler extends Crawler {
      * @param dumpDir  
      *          The directory in the filesystem where the dumped files will be stored.
      *          Does not have to exist yet, it will be created by the crawler.
+     * @throws FileNotFoundException 
      */
-    public DumpingCrawler(String crawlStartURL, String crawlScopeURL, String dumpDir) {
+    public DumpingCrawler(String crawlStartURL, String crawlScopeURL, String dumpDir) throws FileNotFoundException {
         try {
             this.setRoot(new Link(crawlStartURL));
         } catch (MalformedURLException e) {
@@ -89,6 +95,8 @@ public class DumpingCrawler extends Crawler {
             throw new RuntimeException("Could not create mirror with directory: " + this.dumpDir 
                     + ": " + e, e);
         }
+        new File(dumpDir).mkdirs();
+        this.meta = new PrintWriter(new FileOutputStream(this.dumpDir + File.separator + ".meta"));
     }
 
     /**
@@ -97,6 +105,21 @@ public class DumpingCrawler extends Crawler {
     public void visit(Page page) {
         try {
             mirror.writePage(page);
+            
+            // write mimetype and encoding into meta file:
+            File file = page.getLocalFile();
+            if (file != null) {
+                String path = file.getCanonicalPath();
+                String rootPath = new File(this.dumpDir).getCanonicalPath();
+                String relPath = path.substring(rootPath.length()+1);
+                String output = relPath + "," + page.getMimeType();
+                if (page.getContentEncoding() != null) {
+                    output += "," + page.getContentEncoding();
+                }
+                if (page.getMimeType() != null) {
+                    this.meta.println(output);
+                }
+            }
         } catch (IOException e) {
             throw new RuntimeException("Could not save page: url=" + page.getURL() + ": " + e, e);
         }
@@ -142,14 +165,21 @@ public class DumpingCrawler extends Crawler {
         } catch (IOException e) {
             throw new RuntimeException("Could not close mirror: " + e, e);
         }
+        this.meta.flush();
+        this.meta.close();
     }
     
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
         String crawlStartURL = args[0];
         String crawlScopeURL = args[1];
         String dumpDir = args[2];
+        int maxDepth = Integer.parseInt(args[3]);
+        int maxPages = Integer.parseInt(args[4]);
         
         DumpingCrawler crawler = new DumpingCrawler(crawlStartURL, crawlScopeURL, dumpDir);
+        
+        crawler.setMaxDepth(maxDepth);
+        crawler.setMaxPages(maxPages);
         
         EventLog eventLog = new EventLog(System.out);
         crawler.addCrawlListener(eventLog);

@@ -37,6 +37,7 @@ import java.net.URLConnection;
 //#ifdef JDK1.1 
 import java.net.HttpURLConnection;
 //#endif JDK1.1
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
@@ -80,6 +81,8 @@ public class Page extends Region {
     Element[] elements;
     Element root;
     String canonicalTags;
+    String mimeType;
+    File localFile;
 
     /**
      * Make a Page by downloading and parsing a Link.
@@ -265,7 +268,7 @@ public class Page extends Region {
         start = 0;
         contentLock = 1;
         
-        String mimeType = getMimeType(contentType);
+        mimeType = getMimeType(contentType);
         
         if (MimeTypeUtil.isTextual(mimeType)) {
             contentEncoding = getCharset(contentType);
@@ -300,6 +303,14 @@ public class Page extends Region {
         } else {
             return contentType;
         }
+    }
+    
+    /**
+     * Returns the mime type of this page as it was set in the http response.
+     * @return
+     */
+    public String getMimeType() {
+        return this.mimeType;
     }
     
     /**
@@ -851,6 +862,22 @@ public class Page extends Region {
                 }
             }
         }
+    }
+
+    /**
+     * Gets the file where this page was saved to.
+     * @return
+     */
+    public File getLocalFile() {
+        return localFile;
+    }
+
+    /**
+     * Sets the file where this page was saved to.
+     * @param localFile
+     */
+    public void setLocalFile(File localFile) {
+        this.localFile = localFile;
     }
 
 }

@@ -130,7 +130,7 @@ public class Mirror extends LinkTransformer {
      */
     public synchronized void writePage (Page page) throws IOException {
         URL url = page.getURL ();        
-        String local = toLocalFileURL (url);
+        String local = toLocalFileURL (url, page.getMimeType());
         URL localURL = new URL (local);
         File localFile = Link.URLToFile (localURL);        
 
@@ -153,6 +153,7 @@ public class Mirror extends LinkTransformer {
         needRewrite = !files.isEmpty ();
         files.addElement (out);
         writtenFiles.add(localURL);
+        page.setLocalFile(localFile);
     }
 
     /**
@@ -179,7 +180,7 @@ public class Mirror extends LinkTransformer {
     
     // maps a remote URL to a local file URL ("<root>/<host>/<filename>")
     // resulting URL is never slash-terminated
-    private String toLocalFileURL (URL remoteURL) {
+    private String toLocalFileURL (URL remoteURL, String mimeType) {
         if (isMapped (remoteURL))
             return lookup (null, remoteURL);
             
@@ -188,11 +189,24 @@ public class Mirror extends LinkTransformer {
         String remoteDir = remoteDirURL.toExternalForm();
         String remoteFile = (remote.length() > remoteDir.length()) ? encode (remote.substring (remoteDir.length())) : defaultFilename;
         String localDir = toLocalDirURL (remoteDirURL);
+        String extension = MimeTypeUtil.getExtension(mimeType);
         String local = localDir + remoteFile;
+        
+        // patch the extension
+        if (extension.length() > 0 && !local.endsWith(extension) && 
+                !local.endsWith(".jpeg") && !local.endsWith(".htm")) {
+            local = local + "." + extension;
+        }
         
         map (remoteURL, local);
         return local;
     }
+    
+    private String replaceExtension(String str, String ext1, String ext2) {
+        return str.substring(0, str.length()-ext1.length()) + ext2;
+    }
+    
+    
 
     // Maps a remote directory URL (slash-terminated) to a local 
     // directory URL (slash-terminated)
