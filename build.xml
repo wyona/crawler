@@ -155,6 +155,8 @@
     <arg value="${crawler.start.url}"/>
     <arg value="${crawler.scope.url}"/>
     <arg value="${crawler.dump.dir}"/>
+    <arg value="${crawler.maxdepth}"/>
+    <arg value="${crawler.maxpages}"/>
     <classpath refid="classpath.run"/>
   </java>
   <echo>INFO: Crawling finished</echo>
