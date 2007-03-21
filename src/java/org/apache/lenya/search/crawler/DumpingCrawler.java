@@ -37,7 +37,7 @@ import websphinx.Page;
  */
 public class DumpingCrawler extends Crawler {
 
-    private String crawlScopeURL;
+    private String[] crawlScopeURLs;
 
     private String dumpDir;
     private Mirror mirror;
@@ -52,13 +52,29 @@ public class DumpingCrawler extends Crawler {
     private static final String[] LINK_TYPES = {"hyperlink", "image", "code", "header-link"};
 
     /**
-     * Creates a new SimpleCrawler.
-     * @param crawlStartURL 
-     *          The URL where the crawl should start.
+     * @param crawlStartURL
      * @param crawlScopeURL
-     *          Limits the scope of the crawl, only links which match the scope url  
-     *          will be followed. Must be a prefix of crawlStartURL.
-     *          In most cases, the crawlScopeURL is equal to or the parent of the crawlStartURL.
+     * @param dumpDir
+     * @throws FileNotFoundException
+     */
+    public DumpingCrawler(String crawlStartURL, String crawlScopeURL, String dumpDir) throws FileNotFoundException {
+        this(crawlStartURL, makeArray(crawlScopeURL), dumpDir);
+    }
+    
+    private static String[] makeArray(String str) {
+        String[] array = new String[1];
+        array[0] = str;
+        return array;
+    }
+    
+    /**
+     * Creates a new SimpleCrawler.
+     * @param crawlStartURL
+     *          The URL where the crawl should start.
+     * @param crawlScopeURLs
+     *          Limits the scope of the crawl, only links which match any of the scope urls  
+     *          will be followed. The first one must be a prefix of crawlStartURL.
+     *          In most cases, the first crawlScopeURL is equal to or the parent of the crawlStartURL.
      *          If the crawlScopeURL does not end with a slash, a slash will be added.
      *          The crawlScopeURL also affects the path of the dumped files.
      *          Example:
@@ -71,26 +87,32 @@ public class DumpingCrawler extends Crawler {
      *          Does not have to exist yet, it will be created by the crawler.
      * @throws FileNotFoundException 
      */
-    public DumpingCrawler(String crawlStartURL, String crawlScopeURL, String dumpDir) throws FileNotFoundException {
+    public DumpingCrawler(String crawlStartURL, String[] crawlScopeURLs, String dumpDir) throws FileNotFoundException {
         try {
             this.setRoot(new Link(crawlStartURL));
         } catch (MalformedURLException e) {
             this.setRoot(null);
         }
-        if (!crawlStartURL.startsWith(crawlScopeURL)) {
-            throw new IllegalArgumentException("crawlScopeURL [" + crawlScopeURL + 
+        if (!crawlStartURL.startsWith(crawlScopeURLs[0])) {
+            throw new IllegalArgumentException("crawlScopeURL [" + crawlScopeURLs[0] + 
                     "] must be a prefix of crawlStartURL [" + crawlStartURL + "]");
         }
-        this.crawlScopeURL = crawlScopeURL;
-        if (!this.crawlScopeURL.endsWith("/")) {
-            this.crawlScopeURL = this.crawlScopeURL + "/";
+        this.crawlScopeURLs = crawlScopeURLs;
+        for (int i=0; i<this.crawlScopeURLs.length; i++) {
+            if (!this.crawlScopeURLs[i].endsWith("/")) {
+                this.crawlScopeURLs[i] = this.crawlScopeURLs[i] + "/";
+            }
         }
         this.dumpDir = dumpDir;
         this.setSynchronous(true);
-        this.setDomain(Crawler.SERVER);
+        if (this.crawlScopeURLs.length > 1) {
+            this.setDomain(Crawler.WEB);
+        } else {
+            this.setDomain(Crawler.SERVER);
+        }
         this.setLinkType(LINK_TYPES);
         try {
-            this.mirror = new Mirror(this.dumpDir, this.crawlScopeURL);
+            this.mirror = new Mirror(this.dumpDir, this.crawlScopeURLs[0]);
         } catch (IOException e) {
             throw new RuntimeException("Could not create mirror with directory: " + this.dumpDir 
                     + ": " + e, e);
@@ -151,12 +173,13 @@ public class DumpingCrawler extends Crawler {
      * @see websphinx.Crawler#shouldVisit(websphinx.Link)
      */
     public boolean shouldVisit(Link link) {
-        if (link.getURL().toString().startsWith(this.crawlScopeURL) && this.nofPages < this.maxPages) {
-            this.nofPages ++;
-            return super.shouldVisit(link);
-        } else {
-            return false;
+        for (int i=0; i<this.crawlScopeURLs.length; i++) {
+            if (link.getURL().toString().startsWith(this.crawlScopeURLs[i]) && this.nofPages < this.maxPages) {
+                this.nofPages ++;
+                return super.shouldVisit(link);
+            }
         }
+        return false;
     }
     
     public void close() {
@@ -171,7 +194,7 @@ public class DumpingCrawler extends Crawler {
     
     public static void main(String[] args) throws Exception {
         String crawlStartURL = args[0];
-        String crawlScopeURL = args[1];
+        String[] crawlScopeURL = args[1].split(",");
         String dumpDir = args[2];
         int maxDepth = Integer.parseInt(args[3]);
         int maxPages = Integer.parseInt(args[4]);

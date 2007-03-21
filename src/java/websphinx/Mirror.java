@@ -195,7 +195,11 @@ public class Mirror extends LinkTransformer {
         // patch the extension
         if (extension.length() > 0 && !local.endsWith(extension) && 
                 !local.endsWith(".jpeg") && !local.endsWith(".htm")) {
-            local = local + "." + extension;
+            if (local.endsWith(".php")) {
+                local = local.substring(0, local.length()-3) + extension;
+            } else {
+                local = local + "." + extension;
+            }
         }
         
         map (remoteURL, local);
@@ -211,49 +215,44 @@ public class Mirror extends LinkTransformer {
     // Maps a remote directory URL (slash-terminated) to a local 
     // directory URL (slash-terminated)
     private String toLocalDirURL (URL remoteURL) {
-        /*if (isMapped (remoteURL))
-            return lookupDir (null, remoteURL);
 
         String remote = remoteURL.toExternalForm ();
         String local;
-        URL remoteParentURL = Link.getParentURL (remoteURL);
-        
-        if (remoteParentURL.equals (remoteURL)) {
-            // we've reached http://host/
-            String host = remoteURL.getHost ();
-            int port = remoteURL.getPort ();
-            local = root
-                    + encode ((port != -1) ? host + ":" + port : host)
-                    + '/';
-        }
-        else {
-            String remoteParent = remoteParentURL.toExternalForm();
-            String remoteFile = encode (remote.substring (remoteParent.length(),
-                                                          remote.length()-1));
-            String localDir = toLocalDirURL (remoteParentURL);
-            local = localDir + remoteFile + "/";
-        }
             
-        map (remoteURL, local);
-        return local;*/
-        
         if (isMapped (remoteURL))
             return lookupDir (null, remoteURL);
 
-        String remote = remoteURL.toExternalForm ();
-        String local;
-        
-        if (remote.equals(this.crawlScopeURL)) {
-            // we've reached the root of the crawl
-            local = root + '/';
-        }
-        else {
+        if (remote.startsWith(this.crawlScopeURL)) {
+            if (remote.equals(this.crawlScopeURL)) {
+                // we've reached the root of the crawl
+                local = root + '/';
+            }
+            else {
+                URL remoteParentURL = Link.getParentURL (remoteURL);
+                String remoteParent = remoteParentURL.toExternalForm();
+                String remoteFile = encode (remote.substring (remoteParent.length(),
+                                                              remote.length()-1));
+                String localDir = toLocalDirURL (remoteParentURL);
+                local = localDir + remoteFile + "/";
+            }
+        } else {
             URL remoteParentURL = Link.getParentURL (remoteURL);
-            String remoteParent = remoteParentURL.toExternalForm();
-            String remoteFile = encode (remote.substring (remoteParent.length(),
-                                                          remote.length()-1));
-            String localDir = toLocalDirURL (remoteParentURL);
-            local = localDir + remoteFile + "/";
+            
+            if (remoteParentURL.equals (remoteURL)) {
+                // we've reached http://host/
+                String host = remoteURL.getHost ();
+                int port = remoteURL.getPort ();
+                local = root + "/"
+                        + encode ((port != -1) ? host + ":" + port : host)
+                        + '/';
+            }
+            else {
+                String remoteParent = remoteParentURL.toExternalForm();
+                String remoteFile = encode (remote.substring (remoteParent.length(),
+                                                              remote.length()-1));
+                String localDir = toLocalDirURL (remoteParentURL);
+                local = localDir + remoteFile + "/";
+            }
         }
             
         map (remoteURL, local);
