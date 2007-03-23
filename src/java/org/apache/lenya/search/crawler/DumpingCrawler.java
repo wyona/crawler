@@ -142,6 +142,8 @@ public class DumpingCrawler extends Crawler {
                     this.meta.println(output);
                 }
             }
+            page.discardContent();
+
         } catch (IOException e) {
             throw new RuntimeException("Could not save page: url=" + page.getURL() + ": " + e, e);
         }
