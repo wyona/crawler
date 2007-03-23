@@ -97,7 +97,7 @@ public class DumpingCrawler extends Crawler {
             throw new IllegalArgumentException("crawlScopeURL [" + crawlScopeURLs[0] + 
                     "] must be a prefix of crawlStartURL [" + crawlStartURL + "]");
         }
-        this.crawlScopeURLs = crawlScopeURLs;
+        this.crawlScopeURLs = (String[])crawlScopeURLs.clone();
         for (int i=0; i<this.crawlScopeURLs.length; i++) {
             if (!this.crawlScopeURLs[i].endsWith("/")) {
                 this.crawlScopeURLs[i] = this.crawlScopeURLs[i] + "/";
